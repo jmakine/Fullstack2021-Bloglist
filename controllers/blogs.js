@@ -5,18 +5,26 @@ const Blog = require('../models/blog')
     Blog
       .find({})
       .then(blogs => {
-        response.json(blogs)
+        response.json(blogs.map(blog => blog.toJSON()))     
       })
   })
   
-  blogsRouter.post('/', (request, response) => {
-    const blog = new Blog(request.body)
+  blogsRouter.post('/', (request, response, next) => {
+    const body = request.body
+    
+    const newBlog = new Blog({
+      title: body.title,
+      author: body.author,
+      url: body.url,
+      likes: body.likes
+    })
   
-    blog
+    newBlog
       .save()
-      .then(result => {
-        response.status(201).json(result)
+      .then(savedBlog => {
+        response.json(savedBlog.toJSON())
       })
+      .catch(error => next(error))
   })
   
 module.exports = blogsRouter
