@@ -19,12 +19,12 @@ const empty_list = []
 
 describe('total likes', () => {
     test('2 + 3 = 5', () => {
-    const result = totalLikes.sumOfLikes(blogs_2_and_3)
+    const result = totalLikes.totalLikes(blogs_2_and_3)
     expect(result).toBe(5)
     })
 
     test('empty list retuns 0', () => {
-        const result = totalLikes.sumOfLikes(empty_list)
+        const result = totalLikes.totalLikes(empty_list)
         expect(result).toBe(0)
     })
 

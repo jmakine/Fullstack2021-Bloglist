@@ -1,4 +1,4 @@
-const sumOfLikes = (blogs) => {
+const totalLikes = (blogs) => {
     if (blogs.length != 0) {
      return blogs
             .map(item => item.likes)
@@ -8,5 +8,5 @@ const sumOfLikes = (blogs) => {
 }
 
 module.exports = {
-    sumOfLikes
+    totalLikes
 }
