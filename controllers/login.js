@@ -5,11 +5,17 @@ const User = require('../models/user')
 
 loginRouter.post('/', async (request, response) => {
   const body = request.body
+  console.log('request.body:')
+  console.log(body)
 
   const user = await User.findOne({ username: body.username })
+  console.log('user: ' + user)
+  console.log('user.passwordHash: ' + user.passwordHash)
+
   const passwordCorrect = user === null
     ? false
     : await bcrypt.compare(body.password, user.passwordHash)
+  console.log('passwordCorrect: ' + passwordCorrect)
 
   if (!(user && passwordCorrect)) {
     return response.status(401).json({
@@ -21,8 +27,14 @@ loginRouter.post('/', async (request, response) => {
     username: user.username,
     id: user._id,
   }
+  console.log(userForToken)
 
-  const token = jwt.sign(userForToken, process.env.SECRET)
+  // token expires in 60*60 seconds, that is, in one hour
+  const token = jwt.sign(
+    userForToken, 
+    process.env.SECRET,
+    { expiresIn: 60*60 }
+  )
 
   response
     .status(200)
