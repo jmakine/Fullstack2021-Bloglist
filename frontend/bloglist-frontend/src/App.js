@@ -5,6 +5,10 @@ import loginService from './services/login'
 
 const App = () => {
   const [blogs, setBlogs] = useState([])
+  const [newTitle, setNewTitle] = useState('')
+  const [newAuthor, setNewAuthor] = useState('')
+  const [newUrl, setNewUrl] = useState('')
+  const [newLikes, setNewLikes] =useState(0)
   const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
   const [user, setUser] = useState(null)
@@ -46,6 +50,8 @@ const App = () => {
       setTimeout(() => {
         setErrorMessage(null)
       }, 5000)
+      setUsername('')
+      setPassword('')
     }  
   }
 
@@ -94,16 +100,63 @@ const App = () => {
     </div>
   )
   
- /*
+  const addBlog = (event) => {
+    event.preventDefault()
+    const blogObject = {
+      title: newTitle,
+      author: newAuthor,
+      url: newUrl,
+      likes: newLikes,
+      user: user,
+    }
+
+    blogService
+      .create(blogObject)
+        .then(returnedBlog => {
+        setBlogs(blogs.concat(returnedBlog))
+        setNewTitle('')
+        setNewAuthor('')
+        setNewUrl('')
+        setNewLikes(0)
+      })
+  }
+
   const blogForm = () => (
     <form onSubmit={addBlog}>
-      <input
-        value={newBlow}
-        onChange={handleBlogChange}
+      
+      <div>
+      <text>Title: </text>
+        <input
+        type="text"
+        value={newTitle}
+        name="title"
+        onChange={({ target }) => setNewTitle(target.value)}    
+      />  
+      </div>
+      
+      <div> 
+      <text>Author: </text>     
+      <input  
+        type="text"
+        value={newAuthor}
+        name="author"
+        onChange={({ target }) => setNewAuthor(target.value)}
       />
-      <button type="submit">save</button>
+      </div>
+      
+      <div>
+      <text>Url: </text>
+      <input
+        type="text"
+        value={newUrl}
+        name="url"
+        onChange={({ target }) => setNewUrl(target.value)}
+      />
+      </div>
+      
+      <button type="submit">Save</button>
     </form>  
-  )*/
+  )
 
   return (
     <div>
@@ -116,6 +169,7 @@ const App = () => {
           <p>{user.name} logged in</p>
           {blogsList()}          
           <p></p>
+          {blogForm()}
           <button className='logout' onClick={handleLogout}> Log out</button>
         </div>
       }
