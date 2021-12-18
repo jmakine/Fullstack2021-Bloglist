@@ -8,6 +8,7 @@ import Togglable from './components/Togglable'
 
 import blogService from './services/blogs'
 import loginService from './services/login'
+//import { findById } from '../../../backend/models/blog/'
 
 const App = () => {
   const [blogs, setBlogs] = useState([])
@@ -92,7 +93,9 @@ const App = () => {
             key={blog.id} 
             blog={blog} 
             user={user} 
-            likeBlog={likeBlog} />
+            likeBlog={likeBlog} 
+            removeBlog={removeBlog}
+            loggedUser={user}/>
           )}
     </div>
   )
@@ -103,13 +106,14 @@ const App = () => {
       .create(blogObject)
       .then(returnedBlog => {
         setBlogs(blogs.concat(returnedBlog))
+        setUser(user) //
         setMessage(`Blog "${blogObject.title}" by author "${blogObject.author}" added`)
         setTimeout(() => {
           setMessage(null)
         }, 5000)
       })
     } catch (exception) {
-      setErrorMessage('Blog already exists')
+      setErrorMessage(`Error:  ${console.error()}`)
       setTimeout(() => {
         setErrorMessage(null)
       }, 5000)
@@ -137,6 +141,24 @@ const App = () => {
       setTimeout(() => {
         setErrorMessage(null)
       }, 5000)
+    }
+  }
+
+  const removeBlog = async (blog) => {
+    try{
+      if (window.confirm(`Remove "${blog.title}" by author "${blog.author}" from list`)) {
+        await blogService.remove(blog.id, user.token)
+        setBlogs(blogs.filter(x => x.id !== blog.id))    
+        setMessage(`Blog "${blog.title}" by author "${blog.author}" deleted`)
+        setTimeout(() => {
+          setMessage(null)
+        }, 5000) 
+      }
+    } catch (error) {
+      setErrorMessage(`Error with deletion`)
+        setTimeout(() => {
+          setErrorMessage(null)
+        }, 5000)
     }
   }
 
