@@ -20,9 +20,6 @@ const App = () => {
   const [errorMessage, setErrorMessage] = useState(null)
   const [message, setMessage] = useState(null)
 
-  const [loginVisible, setLoginVisible] = useState(false)
-  const [blogVisible, setBlogVisible] = useState(false)
-
   useEffect(() => {
     blogService.getAllBlogs().then(blogs => {
       setBlogs( blogs )
@@ -89,7 +86,7 @@ const App = () => {
     <div>
     <h2>Blogs</h2>
       {blogs.map(blog =>
-      <Blog key={blog.id} blog={blog} user={user} />
+      <Blog key={blog.id} blog={blog} user={user} likeBlog={likeBlog} />
       )}
     </div>
   )
@@ -107,6 +104,30 @@ const App = () => {
       })
     } catch (exception) {
       setErrorMessage('Blog already exists')
+      setTimeout(() => {
+        setErrorMessage(null)
+      }, 5000)
+    }
+  }
+
+  const likeBlog = async (blogObject, id) => {
+    try {
+      const likedBlog = {
+        user: blogObject.user.id,
+        title: blogObject.title,
+        author: blogObject.author,
+        likes: (blogObject.likes += 1),
+      }
+
+      await blogService.update(id, likedBlog)
+      setMessage(`Blog ${blogObject.title} liked!`)
+        setTimeout(() => {
+          setMessage(null)
+        }, 5000)
+
+    } catch (error) {
+      console.log(error)
+      setErrorMessage('Error with trying to like the blog')
       setTimeout(() => {
         setErrorMessage(null)
       }, 5000)

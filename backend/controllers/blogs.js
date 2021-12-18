@@ -58,7 +58,7 @@ const User = require('../models/user')
 
   blogsRouter.put('/:id', async (request,response)=>{
     const body = request.body
-    const user = await User.findById(body.userId)
+ /*   const user = await User.findById(body.userId)
     
     const updatedBlog = {
       title: body.title,
@@ -66,12 +66,10 @@ const User = require('../models/user')
       url: body.url,
       likes: body.likes,
       user: user._id
-    }
+    }*/
 
-    await Blog.findByIdAndUpdate(request.params.id, updatedBlog)
-      .then(updatedBlog => {
-        response.json(updatedBlog.toJSON())
-      })
+    const updatedBlog = await Blog.findByIdAndUpdate(request.params.id, body, { new: true }).populate('user', { username: 1, name: 1 })
+      response.json(updatedBlog.toJSON())
   })
   
 module.exports = blogsRouter
