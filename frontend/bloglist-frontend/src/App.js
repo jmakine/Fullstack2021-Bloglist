@@ -10,13 +10,12 @@ import loginService from './services/login'
 
 const App = () => {
   const [blogs, setBlogs] = useState([])
-  const [newTitle, setNewTitle] = useState('')
-  const [newAuthor, setNewAuthor] = useState('')
-  const [newUrl, setNewUrl] = useState('')
-  const [newLikes, setNewLikes] =useState(0)
+  
   const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
+  
   const [user, setUser] = useState(null)
+  
   const [errorMessage, setErrorMessage] = useState(null)
   const [message, setMessage] = useState(null)
 
@@ -106,29 +105,16 @@ const App = () => {
     </div>
   )
   
-  const addBlog = (event) => {
-    event.preventDefault()
-    const blogObject = {
-      title: newTitle,
-      author: newAuthor,
-      url: newUrl,
-      likes: newLikes,
-      user: user,
-    }
-
+  const addBlog = (blogObject) => {
     try {
     blogService
       .create(blogObject)
-        .then(returnedBlog => {
+      .then(returnedBlog => {
         setBlogs(blogs.concat(returnedBlog))
         setMessage(`Blog "${blogObject.title}" by author "${blogObject.author}" added`)
         setTimeout(() => {
           setMessage(null)
         }, 5000)
-        setNewTitle('')
-        setNewAuthor('')
-        setNewUrl('')
-        setNewLikes(0)
       })
     } catch (exception) {
       setErrorMessage('Blog already exists')
@@ -149,18 +135,9 @@ const App = () => {
       </div>
 
       <div style={showWhenVisible}>
-      <BlogForm
-            title={newTitle}
-            author={newAuthor}
-            url={newUrl}
-            likes={newLikes}
-            handleTitleChange={({ target }) => setNewTitle(target.value)}
-            handleAuthorChange={({ target }) => setNewAuthor(target.value)}
-            handleUrlChange={({ target }) => setNewUrl(target.value)}
-            handleSubmit={addBlog}
-          />
-          <button onClick={() => setBlogVisible(false)}>Cancel</button>
-        </div>
+        <BlogForm createBlog = {addBlog} />
+        <button onClick={() => setBlogVisible(false)}>Cancel</button>
+      </div>
     </div>     
     )
   }
