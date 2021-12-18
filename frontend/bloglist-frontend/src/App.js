@@ -4,6 +4,7 @@ import Blog from './components/Blog'
 import Notification from './components/Notification'
 import LoginForm from './components/LoginForm'
 import BlogForm from './components/BlogForm'
+import Togglable from './components/Togglable'
 
 import blogService from './services/blogs'
 import loginService from './services/login'
@@ -72,17 +73,8 @@ const App = () => {
     }
   } 
 
-  const loginForm = () => {
-    const hideWhenVisible = { display: loginVisible ? 'none' : '' }
-    const showWhenVisible = { display: loginVisible ? '' : 'none' }
-    
-    return (
-    <div>
-      <div style={hideWhenVisible}>
-        <button onClick={() => setLoginVisible(true)}>Log in</button>
-      </div>
-
-      <div style={showWhenVisible}>
+  const loginForm = () => (
+      <Togglable buttonLabel="Log in">
       <LoginForm
             username={username}
             password={password}
@@ -90,11 +82,8 @@ const App = () => {
             handlePasswordChange={({ target }) => setPassword(target.value)}
             handleSubmit={handleLogin}
           />
-          <button onClick={() => setLoginVisible(false)}>Cancel</button>
-        </div>
-    </div>     
+      </Togglable> 
     )
-  }
 
   const blogsList = () => (
     <div>
@@ -124,23 +113,11 @@ const App = () => {
     }
   }
 
-  const blogForm = () => {
-    const hideWhenVisible = { display: blogVisible ? 'none' : '' }
-    const showWhenVisible = { display: blogVisible ? '' : 'none' }
-    
-    return (
-    <div>
-      <div style={hideWhenVisible}>
-        <button onClick={() => setBlogVisible(true)}>Add new blog</button>
-      </div>
-
-      <div style={showWhenVisible}>
-        <BlogForm createBlog = {addBlog} />
-        <button onClick={() => setBlogVisible(false)}>Cancel</button>
-      </div>
-    </div>     
-    )
-  }
+  const blogForm = () => (
+    <Togglable buttonLabel="Add new blog">
+      <BlogForm createBlog = {addBlog} />
+    </Togglable>
+  )
 
   return (
     <div>
