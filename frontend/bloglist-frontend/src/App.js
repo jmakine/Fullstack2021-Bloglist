@@ -85,9 +85,15 @@ const App = () => {
   const blogsList = () => (
     <div>
     <h2>Blogs</h2>
-      {blogs.map(blog =>
-      <Blog key={blog.id} blog={blog} user={user} likeBlog={likeBlog} />
-      )}
+      {blogs
+        .sort((x, y) => y.likes - x.likes)
+        .map(blog =>
+          <Blog 
+            key={blog.id} 
+            blog={blog} 
+            user={user} 
+            likeBlog={likeBlog} />
+          )}
     </div>
   )
   
