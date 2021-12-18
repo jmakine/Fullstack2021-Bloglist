@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useRef } from 'react'
 
 import Blog from './components/Blog'
 import Notification from './components/Notification'
@@ -8,7 +8,6 @@ import Togglable from './components/Togglable'
 
 import blogService from './services/blogs'
 import loginService from './services/login'
-//import { findById } from '../../../backend/models/blog/'
 
 const App = () => {
   const [blogs, setBlogs] = useState([])
@@ -20,6 +19,8 @@ const App = () => {
   
   const [errorMessage, setErrorMessage] = useState(null)
   const [message, setMessage] = useState(null)
+
+  const blogFormRef = useRef()
 
   useEffect(() => {
     blogService.getAllBlogs().then(blogs => {
@@ -100,18 +101,16 @@ const App = () => {
     </div>
   )
   
-  const addBlog = (blogObject) => {
+  const addBlog = async (blogObject) => {
     try {
-    blogService
-      .create(blogObject)
-      .then(returnedBlog => {
-        setBlogs(blogs.concat(returnedBlog))
-        setUser(user) //
-        setMessage(`Blog "${blogObject.title}" by author "${blogObject.author}" added`)
-        setTimeout(() => {
-          setMessage(null)
-        }, 5000)
-      })
+      blogFormRef.current.toggleVisibility()
+      const returnedBlog = await blogService.create(blogObject)
+      setBlogs(blogs.concat(returnedBlog))
+      setMessage(`Blog "${blogObject.title}" by author "${blogObject.author}" added`)
+      setTimeout(() => {
+        setMessage(null)
+      }, 5000)
+      
     } catch (exception) {
       setErrorMessage(`Error:  ${console.error()}`)
       setTimeout(() => {
@@ -163,7 +162,7 @@ const App = () => {
   }
 
   const blogForm = () => (
-    <Togglable buttonLabel="Add new blog">
+    <Togglable buttonLabel="Add new blog" ref={blogFormRef}>
       <BlogForm createBlog = {addBlog} />
     </Togglable>
   )
