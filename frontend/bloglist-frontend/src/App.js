@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import Blog from './components/Blog'
+import Notification from './components/Notification'
 import blogService from './services/blogs'
 import loginService from './services/login'
 
@@ -13,6 +14,7 @@ const App = () => {
   const [password, setPassword] = useState('')
   const [user, setUser] = useState(null)
   const [errorMessage, setErrorMessage] = useState(null)
+  const [message, setMessage] = useState(null)
 
   useEffect(() => {
     blogService.getAllBlogs().then(blogs => {
@@ -46,7 +48,7 @@ const App = () => {
       setUsername('')
       setPassword('')
     } catch (exception) {
-      setErrorMessage('wrong credentials')
+      setErrorMessage('Wrong username or password')
       setTimeout(() => {
         setErrorMessage(null)
       }, 5000)
@@ -110,15 +112,26 @@ const App = () => {
       user: user,
     }
 
+    try {
     blogService
       .create(blogObject)
         .then(returnedBlog => {
         setBlogs(blogs.concat(returnedBlog))
+        setMessage(`Blog "${blogObject.title}" by author "${blogObject.author}" added`)
+        setTimeout(() => {
+          setMessage(null)
+        }, 5000)
         setNewTitle('')
         setNewAuthor('')
         setNewUrl('')
         setNewLikes(0)
       })
+    } catch (exception) {
+      setErrorMessage('Blog already exists')
+      setTimeout(() => {
+        setErrorMessage(null)
+      }, 5000)
+    }
   }
 
   const blogForm = () => (
@@ -161,6 +174,7 @@ const App = () => {
   return (
     <div>
       <h1>Blog App</h1>
+      <Notification errMessage={errorMessage} successMessage={message}/>
       
       {user === null ?
         loginForm() :
