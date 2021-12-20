@@ -44,4 +44,13 @@ test('Url and likes are shown only when "Show more" button is cliked', () => {
     expect(component.container).toHaveTextContent('Likes, not rendered by defaul')
 })
 
+test('If "Like" button is clicked twice, the event handler the component received as props is called twice', () => {
+    const showMoreButton = component.getByText('Show more')
+    fireEvent.click(showMoreButton)
+    const likeButton = component.getByText('Like')
+    fireEvent.click(likeButton)
+    fireEvent.click(likeButton)
+    expect(mockHandler.mock.calls).toHaveLength(2)
+})
+
 })
