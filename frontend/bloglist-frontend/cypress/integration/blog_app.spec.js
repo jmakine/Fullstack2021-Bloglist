@@ -61,10 +61,10 @@ describe('Blog App', function() {
 
     describe('When logged in', function() {
         beforeEach(function() {
-        cy.contains('Log in').click()
-        cy.get('#username').type('111')
-        cy.get('#password').type('111')
-        cy.get('#login-button').click()
+            cy.contains('Log in').click()
+            cy.get('#username').type('111')
+            cy.get('#password').type('111')
+            cy.get('#login-button').click()
         })
 
         it('A blog can be added', function() {
@@ -73,6 +73,11 @@ describe('Blog App', function() {
             cy.get('#author').type('newAuthor')
             cy.get('#url').type('newUrl')
             cy.get('#create-blog').click()
+            cy.contains('newTitle')
+            cy.contains('newAuthor')
+        })
+
+        it('Added blog is visible', function() {
             cy.contains('newTitle')
             cy.contains('newAuthor')
         })
