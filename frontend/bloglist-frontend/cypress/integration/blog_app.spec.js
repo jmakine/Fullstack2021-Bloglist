@@ -23,29 +23,40 @@ const blogs = [
 
 
 describe('Blog App', function() {
-    /*beforeEach(function() {    
-  cy.request('POST', 'http://localhost:3001/api/testing/reset')
-  const user = {
-      name: '111',
-      username: '111',
-      password: '111'
-  }
-  cy.request('POST', 'http://localhost:3001/api/users', user)
-  cy.visit('http://localhost:3000')
-})*/
+
+    beforeEach(function() { 
+        cy.visit('http://localhost:3000')
+    })    
 
     it('Front page can be opened', function() {
-        cy.visit('http://localhost:3000')
         cy.contains('Blog App')
     })
   
     it('Login form can be opened', function() {
-        cy.visit('http://localhost:3000')
         cy.contains('Log in').click()
         cy.contains('Username')
         cy.contains('Password')
         cy.contains('Cancel')
     })
 
+    describe('Login',function() {
+        beforeEach(function() {
+            cy.contains('Log in').click()
+        })
+
+        it('Succeeds with correct credentials', function() {
+            cy.get('#username').type('111')
+            cy.get('#password').type('111')
+            cy.get('#login-button').click()
+            cy.contains('111 logged in')
+        })
+    
+        it('Fails with wrong credentials', function() {
+            cy.get('#username').type('111')
+            cy.get('#password').type('222')
+            cy.get('#login-button').click()
+            cy.contains('Login')
+        })
+      })
 
   })
