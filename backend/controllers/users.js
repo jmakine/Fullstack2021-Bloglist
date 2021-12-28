@@ -9,24 +9,24 @@ usersRouter.post('/', async (request, response) => {
   const passwordHash = await bcrypt.hash(body.password, saltRounds)
 
   if(!body.username) {
-      return response.status(400).json({error: 'Missing username'})
+    return response.status(400).json({ error: 'Missing username' })
   }
 
   if(body.username.length < 3) {
-      return response.status(400).json({error: 'Username has to be at least 3 characters long'})
+    return response.status(400).json({ error: 'Username has to be at least 3 characters long' })
   }
 
-  const alreadyExistingUsername = await User.findOne({username: body.username})
+  const alreadyExistingUsername = await User.findOne({ username: body.username })
   if (alreadyExistingUsername) {
-      return response.status(400).json(({error: 'Username already exists'}))
+    return response.status(400).json(({ error: 'Username already exists' }))
   }
 
   if(!body.password) {
-    return response.status(400).json({error: 'Missing password'})
+    return response.status(400).json({ error: 'Missing password' })
   }
 
   if(body.password.length < 3) {
-    return response.status(400).json({error: 'Password has to be at least 3 characters long'})
+    return response.status(400).json({ error: 'Password has to be at least 3 characters long' })
   }
 
   const user = new User({
@@ -40,10 +40,10 @@ usersRouter.post('/', async (request, response) => {
 })
 
 usersRouter.get('/', async (request, response) => {
-    const users = await User
-        .find({})
-        .populate('blogs', {title: 1, author: 1, url: 1, likes: 1})
-    response.json(users.map(user => user.toJSON()))
+  const users = await User
+    .find({})
+    .populate('blogs', { title: 1, author: 1, url: 1, likes: 1 })
+  response.json(users.map(user => user.toJSON()))
 })
 
 usersRouter.get('/:id', async(request, response) => {
@@ -56,8 +56,8 @@ usersRouter.get('/:id', async(request, response) => {
 })
 
 usersRouter.delete('/:id', async(request, response) => {
-    await User.findByIdAndRemove(request.params.id)
-    response.status(204).end()
-  })
+  await User.findByIdAndRemove(request.params.id)
+  response.status(204).end()
+})
 
 module.exports = usersRouter

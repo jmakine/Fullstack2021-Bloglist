@@ -1,4 +1,5 @@
 const mongoose = require('mongoose')
+const bcrypt = require('bcrypt')
 const supertest = require('supertest')
 const helper = require('./test_helper')
 const app = require('../app')
@@ -8,17 +9,17 @@ const User = require('../models/user')
 
 describe('get blogs', () => {
 
-  beforeEach(async () => {    
-    await Blog.deleteMany({}) 
+  beforeEach(async () => {
+    await Blog.deleteMany({})
     await Blog.insertMany(helper.initialBlogs)
   })
 
   test('there are 3 initial blogs', async () => {
-      const response = await api.get('/api/blogs')
-      expect(response.body).toHaveLength(helper.initialBlogs.length)
+    const response = await api.get('/api/blogs')
+    expect(response.body).toHaveLength(helper.initialBlogs.length)
   })
 
-  test('blogs are returned as json', async () => {  
+  test('blogs are returned as json', async () => {
     await api
       .get('/api/blogs')
       .expect(200)
@@ -31,11 +32,11 @@ describe('adding a blog', () => {
 
   test('adding succeeds with valid data', async() => {
     const newBlog = {
-        title: "Add new",
-        author: "new",
-        url: "new",
-        likes: 10,
-      }
+      title: 'Add new',
+      author: 'new',
+      url: 'new',
+      likes: 10,
+    }
 
     await api
       .post('/api/blogs')
@@ -53,7 +54,7 @@ describe('adding a blog', () => {
 })
 
 describe('when there is initially one user at db', () => {
-  
+
   beforeEach(async () => {
     await User.deleteMany({})
     const passwordHash = await bcrypt.hash('sekret', 10)
