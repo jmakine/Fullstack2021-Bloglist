@@ -15,7 +15,7 @@ const blogs = [
   },
   {
     title: 'Test 4',
-    author: '4',
+    author: '3',
     url: '4',
     likes: 4,
   }

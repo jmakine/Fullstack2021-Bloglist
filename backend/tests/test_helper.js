@@ -16,9 +16,18 @@ const initialBlogs = [
   },
   {
     title: 'Test 4',
-    author: '4',
+    author: '3',
     url: '4',
     likes: 4,
+  }
+]
+
+const blogToBeAdded = [
+  {
+    title: 'AddTitle',
+    author: 'AddAuthor',
+    url: 'AddUrl',
+    likes: 0,
   }
 ]
 
@@ -34,6 +43,7 @@ const usersInDb = async () => {
 
 module.exports = {
   initialBlogs,
+  blogToBeAdded,
   blogsInDb,
   usersInDb
 }

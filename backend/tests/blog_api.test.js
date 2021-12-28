@@ -6,15 +6,36 @@ const app = require('../app')
 const api = supertest(app)
 const Blog = require('../models/blog')
 const User = require('../models/user')
+let token
+
+beforeEach(async () => {
+  await Blog.deleteMany({})
+
+  const blogs = helper.initialBlogs.map(blog => new Blog(blog))
+  const saveBlogs = blogs.map(blog => blog.save())
+  await Promise.all(saveBlogs)
+
+  await User.deleteMany({})
+  const passwordHash = await bcrypt.hash('testPassword', 10)
+  const user = new User({
+    username: 'testUser',
+    name: 'testName',
+    passwordHash
+  })
+  await user.save()
+  const response = await api
+    .post('/api/login')
+    .send({
+      username: 'testUser',
+      name: 'testName',
+      password: 'testPassword'
+    })
+  token = response.body.token
+}, 20000)
 
 describe('get blogs', () => {
 
-  beforeEach(async () => {
-    await Blog.deleteMany({})
-    await Blog.insertMany(helper.initialBlogs)
-  })
-
-  test('there are 3 initial blogs', async () => {
+  test('all blogs are returned', async () => {
     const response = await api.get('/api/blogs')
     expect(response.body).toHaveLength(helper.initialBlogs.length)
   })
@@ -30,40 +51,26 @@ describe('get blogs', () => {
 
 describe('adding a blog', () => {
 
-  test('adding succeeds with valid data', async() => {
-    const newBlog = {
-      title: 'Add new',
-      author: 'new',
-      url: 'new',
-      likes: 10,
-    }
-
+  test('adding succeeds with valid data and authorized user', async() => {
     await api
       .post('/api/blogs')
-      .send(newBlog)
-      .expect(200)
+      .set('Authorization', `Bearer ${token}`)
+      .send(helper.blogToBeAdded)
+      .expect(201)
       .expect('Content-Type', /application\/json/)
 
-    const blogsAfter = await helper.blogsInDb()
-    expect(blogsAfter).toHaveLength(helper.initialBlogs.length + 1)
+    const blogsAfterAddition = await helper.blogsInDb()
+    expect(blogsAfterAddition).toHaveLength(helper.initialBlogs.length + 1)
 
-    const titles = blogsAfter.map(n => n.title)
-    expect(titles).toContain('Add new')
+    const titles = blogsAfterAddition.map(n => n.title)
+    expect(titles).toContain('AddTitle')
   })
 
 })
 
-describe('when there is initially one user at db', () => {
-
-  beforeEach(async () => {
-    await User.deleteMany({})
-    const passwordHash = await bcrypt.hash('sekret', 10)
-    const user = new User({ username: 'root', passwordHash })
-    await user.save()
-  })
+describe('creating a new user', () => {
 
   test('creation succeeds with a fresh username', async () => {
-    const usersAtStart = await helper.usersInDb()
 
     const newUser = {
       username: 'jenska',
@@ -78,17 +85,16 @@ describe('when there is initially one user at db', () => {
       .expect('Content-Type', /application\/json/)
 
     const usersAfter = await helper.usersInDb()
-    expect(usersAfter).toHaveLength(usersAtStart.length + 1)
+    expect(usersAfter).toHaveLength(2)
 
     const usernames = usersAfter.map(user => user.username)
     expect(usernames).toContain(newUser.username)
   })
 
   test('creation of already existing username fails with proper statuscode and message if username already taken', async () => {
-    const usersAtStart = await helper.usersInDb()
 
     const newUser = {
-      username: 'root',
+      username: 'testUser',
       name: 'Superuser',
       password: 'salainen',
     }
@@ -102,11 +108,10 @@ describe('when there is initially one user at db', () => {
     expect(result.body.error).toContain('Username already exists')
 
     const usersAfter = await helper.usersInDb()
-    expect(usersAfter).toHaveLength(usersAtStart.length)
+    expect(usersAfter).toHaveLength(1)
   })
 
   test('creation of missing username fails with proper statuscode and message if username already taken', async () => {
-    const usersAtStart = await helper.usersInDb()
 
     const newUser = {
       username: '',
@@ -123,11 +128,10 @@ describe('when there is initially one user at db', () => {
     expect(result.body.error).toContain('Missing username')
 
     const usersAfter = await helper.usersInDb()
-    expect(usersAfter).toHaveLength(usersAtStart.length)
+    expect(usersAfter).toHaveLength(1)
   })
 
   test('creation of missing password fails with proper statuscode and message if username already taken', async () => {
-    const usersAtStart = await helper.usersInDb()
 
     const newUser = {
       username: 'newUser',
@@ -144,11 +148,10 @@ describe('when there is initially one user at db', () => {
     expect(result.body.error).toContain('Missing password')
 
     const usersAfter = await helper.usersInDb()
-    expect(usersAfter).toHaveLength(usersAtStart.length)
+    expect(usersAfter).toHaveLength(1)
   })
 
   test('creation of too short username fails with proper statuscode and message if username already taken', async () => {
-    const usersAtStart = await helper.usersInDb()
 
     const newUser = {
       username: 'xx',
@@ -165,11 +168,10 @@ describe('when there is initially one user at db', () => {
     expect(result.body.error).toContain('Username has to be at least 3 characters long')
 
     const usersAfter = await helper.usersInDb()
-    expect(usersAfter).toHaveLength(usersAtStart.length)
+    expect(usersAfter).toHaveLength(1)
   })
 
   test('creation of too short password fails with proper statuscode and message if username already taken', async () => {
-    const usersAtStart = await helper.usersInDb()
 
     const newUser = {
       username: 'xxxx',
@@ -186,11 +188,9 @@ describe('when there is initially one user at db', () => {
     expect(result.body.error).toContain('Password has to be at least 3 characters long')
 
     const usersAfter = await helper.usersInDb()
-    expect(usersAfter).toHaveLength(usersAtStart.length)
+    expect(usersAfter).toHaveLength(1)
   })
 
 })
 
-afterAll(async () => {
-  await mongoose.connection.close()
-})
+afterAll(() => mongoose.connection.close())
