@@ -27,7 +27,7 @@ const Blog = ({blog, likeBlog, removeBlog, loggedUser}) => {
       <b>Title: </b> {blog.title} &nbsp; 
       <b>Author: </b> {blog.author} &nbsp;
       <button id='show-more' onClick={() => setBlogVisible(!blogVisible)}>{visible}</button>
-      &nbsp;&nbsp;&nbsp; <button style={{color: 'green'}} onClick={() => likeBlog(blog, blog.id)}>Like</button>
+      &nbsp;&nbsp;&nbsp; <button id='like-button' style={{color: 'green'}} onClick={() => likeBlog(blog, blog.id)}>Like</button>
       &nbsp;&nbsp;&nbsp; {deleteButton()}
       { blogVisible &&
       <div>

@@ -80,6 +80,20 @@ describe('Blog App', function() {
         it('Added blog is visible', function() {
             cy.contains('newTitle')
             cy.contains('newAuthor')
+            cy.get('#show-more').click()
+            cy.contains('newUrl')
+        })
+
+        it('Blog can be liked', function() {
+            cy.get('#show-more').click()
+            cy.contains('Likes: 0')
+            cy.get('#like-button').click()            
+            cy.contains('Likes: 1')
+        })
+
+        it('Blog can be removed by user who added it', function() {
+            cy.get('#delete-button').click()
+            cy.get('h2 > #blog').should('not.contain', 'newTitle')
         })
     })
 
