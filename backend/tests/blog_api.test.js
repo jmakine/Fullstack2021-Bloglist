@@ -1,21 +1,29 @@
 const mongoose = require('mongoose')
-const bcrypt = require('bcrypt')
 const supertest = require('supertest')
-const helper = require('./test_helper')
 const app = require('../app')
-const api = supertest(app)
+
 const Blog = require('../models/blog')
 const User = require('../models/user')
+
+const helper = require('./test_helper')
+const bcrypt = require('bcrypt')
+
+const api = supertest(app)
 let token
 
 beforeEach(async () => {
   await Blog.deleteMany({})
+  console.log('blog db cleared')
 
-  const blogs = helper.initialBlogs.map(blog => new Blog(blog))
+  /*const blogs = helper.initialBlogs.map(blog => new Blog(blog))
   const saveBlogs = blogs.map(blog => blog.save())
   await Promise.all(saveBlogs)
+  console.log('initial blogs saved')*/
+
+  await Blog.insertMany(helper.initialBlogs)
 
   await User.deleteMany({})
+  console.log('users deleted')
   const passwordHash = await bcrypt.hash('testPassword', 10)
   const user = new User({
     username: 'testUser',
@@ -23,6 +31,7 @@ beforeEach(async () => {
     passwordHash
   })
   await user.save()
+  console.log('user saved')
   const response = await api
     .post('/api/login')
     .send({
