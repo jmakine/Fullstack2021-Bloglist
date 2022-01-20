@@ -19,9 +19,6 @@ const App = () => {
   
   const [user, setUser] = useState(null)
   
-  const [errorMessage, setErrorMessage] = useState(null)
-  const [message, setMessage] = useState(null)
-
   const blogFormRef = useRef()
   const dispatch = useDispatch()
 
@@ -57,13 +54,10 @@ const App = () => {
       setUsername('')
       setPassword('')
     } catch (exception) {
-      setErrorMessage('Wrong username or password')
-      setTimeout(() => {
-        setErrorMessage(null)
-      }, 5000)
       setUsername('')
       setPassword('')
-    }  
+      dispatch(setNotification('Wrong username or password'), 5)     
+    }
   }
 
   const handleLogout = async (event) => {
@@ -114,10 +108,7 @@ const App = () => {
         `Blog "${blogObject.title}" by author "${blogObject.author}" added`
         , 5))
     } catch (exception) {
-      setErrorMessage(`Error:  ${console.error()}`)
-      setTimeout(() => {
-        setErrorMessage(null)
-      }, 5000)
+      dispatch(setNotification(`Error:  ${console.error()}`, 5))
     }
   }
 
@@ -131,17 +122,11 @@ const App = () => {
       }
 
       await blogService.update(id, likedBlog)
-      setMessage(`Blog ${blogObject.title} liked!`)
-        setTimeout(() => {
-          setMessage(null)
-        }, 5000)
+      dispatch(setNotification(`Blog ${blogObject.title} liked!`, 5))
 
     } catch (error) {
       console.log(error)
-      setErrorMessage('Error with trying to like the blog')
-      setTimeout(() => {
-        setErrorMessage(null)
-      }, 5000)
+      dispatch(setNotification('Error with trying to like the blog'), 5)
     }
   }
 
@@ -150,16 +135,10 @@ const App = () => {
       if (window.confirm(`Remove "${blog.title}" by author "${blog.author}" from list`)) {
         await blogService.remove(blog.id, user.token)
         setBlogs(blogs.filter(x => x.id !== blog.id))    
-        setMessage(`Blog "${blog.title}" by author "${blog.author}" deleted`)
-        setTimeout(() => {
-          setMessage(null)
-        }, 5000) 
+        dispatch(setNotification(`Blog "${blog.title}" by author "${blog.author}" deleted`, 5))
       }
     } catch (error) {
-      setErrorMessage(`Error with deletion`)
-        setTimeout(() => {
-          setErrorMessage(null)
-        }, 5000)
+      dispatch(setNotification(`Error with deletion`, 5))
     }
   }
 
