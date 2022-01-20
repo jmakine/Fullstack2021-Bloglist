@@ -1,6 +1,18 @@
 import React from 'react'
+import { useSelector } from 'react-redux'
 
-const Notification = ({ errMessage, successMessage }) => {
+const Notification = () => {
+  const notification = useSelector(state => state.notifications)
+
+  return (
+    <div>
+      {notification}
+    </div>
+  )}
+
+export default Notification
+
+/*const Notification = ({ errMessage, successMessage }) => {
 
     const errorStyle = {
         color: 'red',
@@ -43,6 +55,4 @@ const Notification = ({ errMessage, successMessage }) => {
         )
     }
 
-}
-
-export default Notification
+}*/

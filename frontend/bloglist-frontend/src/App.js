@@ -8,6 +8,8 @@ import Togglable from './components/Togglable'
 
 import blogService from './services/blogs'
 import loginService from './services/login'
+import { useDispatch } from 'react-redux'
+import { setNotification } from './reducers/notificationReducer'
 
 const App = () => {
   const [blogs, setBlogs] = useState([])
@@ -21,6 +23,7 @@ const App = () => {
   const [message, setMessage] = useState(null)
 
   const blogFormRef = useRef()
+  const dispatch = useDispatch()
 
   useEffect(() => {
     blogService.getAllBlogs().then(blogs => {
@@ -107,11 +110,9 @@ const App = () => {
       blogFormRef.current.toggleVisibility()
       const returnedBlog = await blogService.create(blogObject)
       setBlogs(blogs.concat(returnedBlog))
-      setMessage(`Blog "${blogObject.title}" by author "${blogObject.author}" added`)
-      setTimeout(() => {
-        setMessage(null)
-      }, 5000)
-      
+      dispatch(setNotification(
+        `Blog "${blogObject.title}" by author "${blogObject.author}" added`
+        , 5))
     } catch (exception) {
       setErrorMessage(`Error:  ${console.error()}`)
       setTimeout(() => {
@@ -171,7 +172,7 @@ const App = () => {
   return (
     <div>
       <h1>Blog App</h1>
-      <Notification errMessage={errorMessage} successMessage={message}/>
+      <Notification />
       
       {user === null ?
         loginForm() :
