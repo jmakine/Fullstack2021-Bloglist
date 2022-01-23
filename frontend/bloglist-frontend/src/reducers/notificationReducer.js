@@ -1,5 +1,3 @@
-import store from "../store"
-
 const reducer = (state = null, action) => {
     switch (action.type) {
         case 'MESSAGE':
@@ -13,7 +11,6 @@ const reducer = (state = null, action) => {
 
 let timeoutId = -1
 export const setNotification = (message, time) => {
-    console.log(store.getState())
     return async dispatch => {
         
         dispatch({
@@ -30,7 +27,6 @@ export const setNotification = (message, time) => {
             })
         }, time * 1000)
         timeoutId = newTimeout
-        console.log(store.getState())
     }
 }
 

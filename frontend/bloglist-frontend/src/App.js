@@ -8,12 +8,13 @@ import Togglable from './components/Togglable'
 
 import blogService from './services/blogs'
 import loginService from './services/login'
-import { useDispatch } from 'react-redux'
+import { useDispatch, useSelector } from 'react-redux'
 import { setNotification } from './reducers/notificationReducer'
+import { createBlog, like, initializeBlogs, deleteBlog } from './reducers/blogReducer'
 
 const App = () => {
-  const [blogs, setBlogs] = useState([])
   
+  const blogs = useSelector(state => state.blogs)
   const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
   
@@ -23,10 +24,8 @@ const App = () => {
   const dispatch = useDispatch()
 
   useEffect(() => {
-    blogService.getAllBlogs().then(blogs => {
-      setBlogs( blogs )
-    })  
-  }, [])
+    dispatch(initializeBlogs())
+  }, [dispatch])
 
   useEffect(() => {
     const loggedUserJSON = window.localStorage.getItem('loggedBlogAppUser')
@@ -83,7 +82,6 @@ const App = () => {
 
   const blogsList = () => (
     <div>
-    <h2>Blogs</h2>
       {blogs
         .sort((x, y) => y.likes - x.likes)
         .map(blog =>
@@ -91,62 +89,38 @@ const App = () => {
             id='blog'
             key={blog.id} 
             blog={blog} 
-            user={user} 
             likeBlog={likeBlog} 
             removeBlog={removeBlog}
             loggedUser={user}/>
           )}
     </div>
   )
-  
-  const addBlog = async (blogObject) => {
-    try {
-      blogFormRef.current.toggleVisibility()
-      const returnedBlog = await blogService.create(blogObject)
-      setBlogs(blogs.concat(returnedBlog))
-      dispatch(setNotification(
-        `Blog "${blogObject.title}" by author "${blogObject.author}" added`
-        , 5))
-    } catch (exception) {
-      dispatch(setNotification(`Error:  ${console.error()}`, 5))
-    }
-  }
-
-  const likeBlog = async (blogObject, id) => {
-    try {
-      const likedBlog = {
-        user: blogObject.user.id,
-        title: blogObject.title,
-        author: blogObject.author,
-        likes: (blogObject.likes += 1),
-      }
-
-      await blogService.update(id, likedBlog)
-      dispatch(setNotification(`Blog ${blogObject.title} liked!`, 5))
-
-    } catch (error) {
-      console.log(error)
-      dispatch(setNotification('Error with trying to like the blog'), 5)
-    }
-  }
-
-  const removeBlog = async (blog) => {
-    try{
-      if (window.confirm(`Remove "${blog.title}" by author "${blog.author}" from list`)) {
-        await blogService.remove(blog.id, user.token)
-        setBlogs(blogs.filter(x => x.id !== blog.id))    
-        dispatch(setNotification(`Blog "${blog.title}" by author "${blog.author}" deleted`, 5))
-      }
-    } catch (error) {
-      dispatch(setNotification(`Error with deletion`, 5))
-    }
-  }
 
   const blogForm = () => (
     <Togglable buttonLabel="Add new blog" ref={blogFormRef}>
       <BlogForm createBlog = {addBlog} />
     </Togglable>
   )
+  
+  const addBlog = async (blogObject) => {
+      blogFormRef.current.toggleVisibility()
+      dispatch(createBlog(blogObject))
+      dispatch(setNotification(
+        `Blog "${blogObject.title}" by author "${blogObject.author}" added`
+        , 5))
+  }
+
+  const likeBlog = async (blogObject) => {
+      dispatch(like(blogObject))
+      dispatch(setNotification(`Blog ${blogObject.title} liked!`, 5))
+  }
+
+  const removeBlog = async (blogObject) => {
+        if (window.confirm(`Remove "${blogObject.title}" by author "${blogObject.author}" from list`)) {
+        dispatch(deleteBlog(blogObject.id))        
+        dispatch(setNotification(`Blog "${blogObject.title}" by author "${blogObject.author}" deleted`, 5))            
+      }
+  }
 
   return (
     <div>
@@ -157,10 +131,14 @@ const App = () => {
         loginForm() :
         
         <div>
-          <p>{user.name} logged in</p>
-          {blogsList()}          
+          <p>{user.name} logged in</p>         
+
+          <h2>Blogs</h2>
+          {blogsList()}
+            
           <p></p>
           {blogForm()}
+          
           <button className='logout' onClick={handleLogout}> Log out</button>
         </div>
       }
