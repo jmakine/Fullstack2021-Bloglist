@@ -1,8 +1,12 @@
 import React, {useState} from 'react'
-import PropTypes from 'prop-types'
+import { createBlog } from '../reducers/blogReducer'
+import { setNotification } from '../reducers/notificationReducer'
+import { useDispatch } from 'react-redux'
+import { Form, Button } from 'react-bootstrap'
 
-const BlogForm = ({ createBlog }) => {
+const BlogForm = () => {
 
+    const dispatch = useDispatch()
     const [newTitle, setNewTitle] = useState('')
     const [newAuthor, setNewAuthor] = useState('')
     const [newUrl, setNewUrl] = useState('')
@@ -17,25 +21,30 @@ const BlogForm = ({ createBlog }) => {
         setNewUrl(event.target.value)
     }
 
-    const addBlog = async (event) => {
+    const addBlog = (event) => {
         event.preventDefault()
-        createBlog({
-          title: newTitle,
-          author: newAuthor,
-          url: newUrl,
-          likes: 0
-        })
-
+        dispatch(createBlog({
+            title: newTitle,
+            author: newAuthor,
+            url: newUrl,
+            likes: 0
+            })
+        )
+        dispatch(setNotification(
+            `Blog "${newTitle}" by author "${newAuthor}" added`
+        , 5))
+        
         setNewTitle('')
         setNewAuthor('')
         setNewUrl('')
+
     }    
     
         return (
         <div>
-        <h2>Add new blog</h2>
+        <h3>Add new blog</h3>
 
-        <form onSubmit={addBlog}>
+        <Form onSubmit={addBlog}>
             <div>
             Title: &nbsp; 
             <input
@@ -60,15 +69,12 @@ const BlogForm = ({ createBlog }) => {
                     onChange={handleUrlChange}
                 />
             </div>
-
-                <button id='create-blog' type="submit">Submit</button>
-        </form>
+            <p></p>
+            <Button variant="success" type="submit">Submit</Button>
+            <p></p>
+        </Form>
         </div>
         )
     }
-
-    BlogForm.propTypes = {
-        createBlog: PropTypes.func.isRequired
-      }
 
 export default BlogForm

@@ -9,7 +9,7 @@ const reducer = (state=[], action) => {
             return state.map(blog => blog.id !== action.data.id ? blog : { ...action.data })
         case 'DELETE':
             return state.filter((blog) => blog.id !== action.data)
-        case 'INIT':
+        case 'INIT_BLOGS':
             return action.data
         default: 
             return state
@@ -21,7 +21,7 @@ export const initializeBlogs = () => {
         try {
             const allBlogs = await blogService.getAllBlogs()
             dispatch({
-                type: 'INIT',
+                type: 'INIT_BLOGS',
                 data: allBlogs
             })
         } catch (error) {
@@ -64,12 +64,12 @@ export const deleteBlog = (id) => {
               })    
               
         } catch (error) {
-            dispatch(setNotification(`Error with deletion`, 5))
+            dispatch(setNotification(`Error: ${console.error()}`, 5))
         }
     }
 }
 
-export const like = (content) => {
+export const likeBlog = (content) => {
     return async dispatch => {
 
         try{
@@ -86,7 +86,7 @@ export const like = (content) => {
 
         } catch (error) {
             dispatch(setNotification(
-                `Error:  ${console.error()}`
+                `Error: ${console.error()}`
                 , 5)
             )
         }

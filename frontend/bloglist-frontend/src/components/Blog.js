@@ -1,39 +1,57 @@
-import React, {useState} from 'react'
+import React from 'react'
+import { useDispatch } from 'react-redux'
+import { useHistory } from 'react-router-dom'
+import { likeBlog, deleteBlog } from '../reducers/blogReducer'
+import { setNotification } from '../reducers/notificationReducer'
+import { Button } from 'react-bootstrap'
 
-const Blog = ({blog, likeBlog, removeBlog, loggedUser}) => {
+const Blog = ({blog, user}) => {
 
-  const [blogVisible, setBlogVisible] = useState(false)
-  let visible = blogVisible ? 'Hide' : 'Show more'
+  const dispatch = useDispatch()
+  const history = useHistory()
 
-  const blogStyle = {
-    paddingTop: 5,
-    paddingLeft: 3,
-    paddingRight: 3,
-    paddingBottom: 5,
-    border: 'solid',
-    borderWidth: 1
+  const like = (blogObject) => {
+    dispatch(likeBlog(blogObject))
+    dispatch(setNotification(
+      `Blog ${blogObject.title} liked!`
+    , 5))
   }
 
+  const removeBlog = (blogObject) => {
+      if (window.confirm(`Remove "${blogObject.title}" by author "${blogObject.author}" from list`)) {
+      dispatch(deleteBlog(blogObject.id))        
+      dispatch(setNotification(
+        `Blog "${blogObject.title}" by author "${blogObject.author}" deleted`
+      , 5))
+      history.push('/')            
+    }
+  }
+  
   const deleteButton = () => {
-    if (blog.user.username === loggedUser.username) {
+    if (blog.user.username === user.username) {
       return (
-        <button style={{ color: 'red' }} onClick={() => removeBlog(blog)}>Delete</button>
+        <Button variant="danger" onClick={() => removeBlog(blog)}>Delete</Button>
       )
     }
   }
 
+  const urlPath = (url) => {
+    if (String(url).includes('://')) {
+      return url
+    } else {
+      return `https://${url}`
+    }
+  }
+
   return (
-    <div style={blogStyle}>
-      <b>Title: </b> {blog.title} &nbsp; 
-      <b>Author: </b> {blog.author} &nbsp;
-      <button id='show-more' onClick={() => setBlogVisible(!blogVisible)}>{visible}</button>
-      &nbsp;&nbsp;&nbsp; <button id='like-button' style={{color: 'green'}} onClick={() => likeBlog(blog, blog.id)}>Like</button>
-      &nbsp;&nbsp;&nbsp; {deleteButton()}
-      { blogVisible &&
-      <div>
-        <b>Url: </b> {blog.url} &nbsp;
-        <b>Likes: </b> {blog.likes} &nbsp;
-      </div> }
+    <div>
+      <p></p>
+      <h2>{blog.title}, by author {blog.author}</h2>  
+        <p></p>
+        <a style={{display: "table-cell"}} href={urlPath(blog.url)} target="_blank" rel = "noopener noreferrer"> {blog.url} </a>
+        <p> Likes: {blog.likes} <Button variant="success" onClick={()=>like(blog)}> Like </Button> </p> 
+        <p>Added by user {blog.user.username}</p>
+        <p>{deleteButton()}</p>
     </div>
   )
 }
