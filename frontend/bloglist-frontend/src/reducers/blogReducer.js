@@ -11,8 +11,24 @@ const reducer = (state=[], action) => {
             return state.filter((blog) => blog.id !== action.data)
         case 'INIT_BLOGS':
             return action.data
+        case 'COMMENT':
+            return state.map(blog => blog.id !== action.data.id ? blog : action.data)
         default: 
             return state
+    }
+}
+
+export const commentBlog = (id, comment) => {
+    return async dispatch => {
+        try {
+            const commentedBlog = await blogService.comment(id, comment)
+            dispatch({
+                type: 'COMMENT',
+                data: commentedBlog
+            })
+        } catch (error) {
+            dispatch(setNotification(`Error: ${console.error()}`, 5))
+        }
     }
 }
 

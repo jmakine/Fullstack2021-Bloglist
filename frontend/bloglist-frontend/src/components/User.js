@@ -16,6 +16,7 @@ const User = ({ user }) => {
         <div>
             <p></p>
             <h2>User {user.name}</h2>
+            <hr></hr>
             <h3>Added blogs</h3>
             <ul>
                 {blogs.map(blog =>
